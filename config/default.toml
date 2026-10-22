@@ -1,0 +1,13 @@
+[studio]
+version = "0.3"
+theme = "default"
+
+[warnings]
+show_emptiness_hints = true
+
+# Future: alphabet / camouflage knobs go here
+# [alphabet]
+# A = "\u3164"
+# B = "\u200b"
+# C = "\u2060"
+# D = "\ufeff"
