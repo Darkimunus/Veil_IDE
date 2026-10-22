@@ -1,0 +1,5 @@
+.veil/
+.venv/
+dist/
+build/
+*.spec
