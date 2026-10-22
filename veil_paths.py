@@ -17,7 +17,7 @@ def project_root() -> Path:
 def user_data_dir() -> Path:
     if getattr(sys, "frozen", False):
         base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
-        return base / "VeilStudio"
+        return base / "VeilIDE"
     # Dev: keep machine-local overrides out of git
     return Path(__file__).resolve().parent / ".veil"
 
@@ -32,5 +32,5 @@ def ensure_user_config() -> Path:
         if default.exists():
             shutil.copy(default, cfg)
         else:
-            cfg.write_text("# Veil Studio config\n", encoding="utf-8")
+            cfg.write_text("# Veil IDE config\n", encoding="utf-8")
     return cfg

@@ -1,7 +1,7 @@
 [project]
-name = "veilstudio"
+name = "veil-ide"
 version = "0.3.0"
-description = "Veil - A joke language written in blank Unicode — Studio + interpreter"
+description = "Veil IDE - editor and interpreter for the Veil blank-Unicode joke language"
 requires-python = ">=3.11"
 dependencies = [
   "PySide6",

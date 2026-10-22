@@ -13,7 +13,7 @@ ENCODING (prefix code, so no terminators / escaping are needed)
   list    = count (number) + that many nodes
 
 Variables are numbers, not names, so the source reveals nothing readable.
-The Studio's "readable view" is a lens for humans: compile_text() turns a
+Veil IDE's "readable view" is a lens for humans: compile_text() turns a
 tiny S-expression syntax into blank source, disassemble() goes back.
 """
 import json
@@ -30,7 +30,7 @@ GLYPHS = ("·", "░", "▒", "█")  # maps to A B C D
 GLYPH_TO_DIGIT = {g: DIGITS[i] for i, g in enumerate(GLYPHS)}
 DIGIT_TO_GLYPH = {DIGITS[i]: GLYPHS[i] for i in range(4)}
 
-# Marker prefix for (md ...) output lines — Studio renders these as markdown
+# Marker prefix for (md ...) output lines — Veil IDE renders these as markdown
 MD_MARK = "\x00md\n"
 
 # Rough “will this look empty / survive paste?” notes for the current alphabet

@@ -306,7 +306,7 @@ wheels = [
 ]
 
 [[package]]
-name = "veilstudio"
+name = "veil-ide"
 version = "0.3.0"
 source = { virtual = "." }
 dependencies = [

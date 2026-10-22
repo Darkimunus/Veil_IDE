@@ -16,10 +16,10 @@ SAMPLE = """-
 """
 
 
-class VeilStudio(QMainWindow):
+class VeilIDE(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Veil Studio 0.3")
+        self.setWindowTitle("Veil IDE 0.3")
         self.resize(950, 900)
         self.path = None
         self._lock = False
@@ -181,7 +181,7 @@ class VeilStudio(QMainWindow):
     def _update_title(self):
         name = self.path.name if self.path else "untitled.veil"
         mark = " *" if self.is_dirty() else ""
-        self.setWindowTitle(f"Veil Studio 0.3 — {name}{mark}")
+        self.setWindowTitle(f"Veil IDE 0.3 — {name}{mark}")
 
     def mark_clean(self):
         """Remember current panes as the saved baseline."""
@@ -463,7 +463,7 @@ def main():
         try:
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-                "VeilStudio.App.0.3"
+                "VeilIDE.App.0.3"
             )
         except Exception:
             pass
@@ -478,7 +478,7 @@ def main():
     else:
         print(f"Icon not loaded: {icon_path} exists={icon_path.exists()}")
 
-    window = VeilStudio()
+    window = VeilIDE()
     if not icon.isNull():
         window.setWindowIcon(icon)
 

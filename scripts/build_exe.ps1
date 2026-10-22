@@ -13,7 +13,7 @@ if (-not (Test-Path $Py)) {
 & $Py -m PyInstaller `
   --noconfirm `
   --windowed `
-  --name VeilStudio `
+  --name Veil_IDE `
   --icon $Icon `
   --paths $Root `
   --add-data "config\default.toml;config" `
@@ -27,4 +27,4 @@ if ($LASTEXITCODE -ne 0) {
   exit $LASTEXITCODE
 }
 
-Write-Host "Built: $Root\dist\VeilStudio\VeilStudio.exe"
+Write-Host "Built: $Root\dist\Veil_IDE\Veil_IDE.exe"
