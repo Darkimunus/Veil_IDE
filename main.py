@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (  # pyright: ignore[reportMissingImports]
 )
 import veil_lang
 import veil_paths
+import subprocess
 
 SAMPLE = """-
 """
@@ -105,6 +106,43 @@ class VeilIDE(QMainWindow):
         # Startup SAMPLE counts as the clean baseline (no file yet)
         self.mark_clean()
 
+    
+    def launch_terminal(self):
+        if self.path is None or not self.path.exists() or self.is_dirty():
+            if not self.save_file():
+                return
+
+        if sys.platform == "win32":
+            if getattr(sys, "frozen", False):
+                runner = Path(sys.executable).parent / "VeilTerminal.exe"
+
+                if not runner.exists():
+                    QMessageBox.critical(
+                        self,
+                        "Terminal error",
+                        f"Terminal runner not found:\n{runner}"
+                    )
+                    return
+
+                subprocess.Popen(
+                    [str(runner), str(self.path)],
+                    creationflags=subprocess.CREATE_NEW_CONSOLE
+                )
+            else:
+                runner = Path(__file__).parent / "terminal_runner.py"
+
+                subprocess.Popen(
+                    [sys.executable, str(runner), str(self.path)],
+                    creationflags=subprocess.CREATE_NEW_CONSOLE
+                )
+        else:
+            QMessageBox.information(
+                self,
+                "Terminal",
+                "The external terminal launcher needs a platform-specific "
+                "terminal command on this operating system."
+            )
+    
     # ---- sync between the panes
     def refresh_status(self):
         text = self.editor.toPlainText()
@@ -441,20 +479,7 @@ class VeilIDE(QMainWindow):
         return text
 
     def run_demo(self):
-        source = self.editor.toPlainText()
-        try:
-            result = veil_lang.run_source(source, input_fn=self.ask_input)
-            self.output.setPlainText(
-                "\n".join(result) if result
-                else "(Program finished with no output.)"
-            )
-        except veil_lang.VeilError as exc:
-            lines = getattr(exc, "output", [])
-            self.output.setPlainText(
-                "\n".join(lines + [f"⚠ {type(exc).__name__}: {exc}"])
-            )
-        except Exception as exc:
-            self.output.setPlainText(f"{type(exc).__name__}: {exc}")
+        self.launch_terminal()
 
 
 def main():

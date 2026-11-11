@@ -17,9 +17,13 @@ Veil IDE's "readable view" is a lens for humans: compile_text() turns a
 tiny S-expression syntax into blank source, disassemble() goes back.
 """
 import json
+import random
 import operator
 import re
 import sys
+import time
+import os
+import select
 
 A, B, C, D = "\u3164", "\u200b", "\u2060", "\ufeff"
 DIGITS = (A, B, C, D)
@@ -187,6 +191,11 @@ SPEC = [
     ("THROW", "x", "throw"), ("TRY", "xix", "try"),
     # Append-only: do not insert earlier or existing .veil opcode numbers break
     ("MD", "x", "md"),
+    ("RAND", "x", "rand"),
+    ("TPRINT", "x", "tprint"),
+    ("KEY", "", "key"),
+    ("CLEAR", "", "clear"),
+    ("SLEEP", "x", "sleep"),
 ]
 CODE = {n: i for i, (n, _, _) in enumerate(SPEC)}
 SIG = {n: s for n, s, _ in SPEC}
@@ -619,13 +628,48 @@ _CATCH = (TypeError, ValueError, IndexError, KeyError, ZeroDivisionError,
           OverflowError, AttributeError, RecursionError)
 
 
+def terminal_key():
+    if os.name != "nt":
+        return ""
+
+    import msvcrt
+
+    if not msvcrt.kbhit():
+        return ""
+
+    ch = msvcrt.getwch()
+
+    # Arrow keys and other extended keys use a two-part sequence.
+    if ch in ("\x00", "\xe0"):
+        # Read the second part immediately, rather than waiting
+        # for the next game frame or another keypress.
+        ch = msvcrt.getwch()
+
+        keys = {
+            "H": "UP",
+            "P": "DOWN",
+            "K": "LEFT",
+            "M": "RIGHT",
+        }
+
+        return keys.get(ch, "")
+
+    return ch.lower()
+
+
+def terminal_clear():
+    import sys
+
+    sys.stdout.write("\033[2J\033[H")
+    sys.stdout.flush()
+
 class _Runtime:
     def __init__(self, input_fn, max_steps):
         self.input_fn, self.limit, self.steps, self.output = input_fn, max_steps, 0, []
 
     def ev(self, node, env):
         self.steps += 1
-        if self.steps > self.limit:
+        if self.limit is not None and self.steps > self.limit:
             raise VeilHalt(f"Step limit ({self.limit}) exceeded - infinite loop?")
         op, a = node
         try:
@@ -678,10 +722,36 @@ class _Runtime:
             v = ev(a[0], env)
             self.output.append(fmt(v))
             return v
+        if op == "TPRINT":
+            value = ev(a[0], env)
+            print(fmt(value), end="", flush=True)
+            return value
+
+        if op == "KEY":
+            return terminal_key()
+
+        if op == "CLEAR":
+            terminal_clear()
+            return None
+
+        if op == "SLEEP":
+            delay = ev(a[0], env)
+            time.sleep(max(0, delay))
+            return None
         if op == "MD":
             v = fmt(ev(a[0], env))
             self.output.append(MD_MARK + v)
             return v
+        if op == "RAND":
+            limit = ev(a[0], env)
+
+            if isinstance(limit, bool) or not isinstance(limit, int):
+                raise VeilError("RAND: limit must be an integer")
+
+            if limit <= 0:
+                raise VeilError("RAND: limit must be positive")
+
+            return random.randrange(limit)
         if op == "INPUT":
             if self.input_fn is None:
                 raise VeilError("INPUT: no input source")
